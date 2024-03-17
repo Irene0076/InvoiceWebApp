@@ -1,9 +1,26 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // バックエンドから請求書データを取得する
-    fetch('/api/invoice')
-        .then(response => response.json()) // レスポンスをJSON形式で解析
+    const invoiceSelect = document.getElementById('invoiceSelect');
+    const invoiceElement = document.getElementById('invoice');
+
+    // 利用可能な請求書のリストを取得してドロップダウンを初期化する
+    fetch('/api/invoices')
+        .then(response => response.json())
         .then(data => {
-            // 請求書データをHTMLに挿入する処理
+            data.forEach(invoice => {
+                const option = document.createElement('option');
+                option.value = invoice.invoiceId;
+                option.textContent = invoice.invoiceNumber;
+                invoiceSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching invoice list:', error));
+
+    // 「請求書を表示」ボタンクリックイベント
+    document.getElementById('showInvoice').addEventListener('click', function() {
+        const selectedInvoiceId = invoiceSelect.value;
+        fetch(`/api/invoice?invoiceId=${selectedInvoiceId}`)
+            .then(response => response.json())
+            .then(data => {
 
             // HTML要素を選択
             const invoiceElement = document.getElementById('invoice');
@@ -55,4 +72,5 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         })
         .catch(error => console.error('Error fetching invoice data:', error));
-});
+    });
+});    
